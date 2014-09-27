@@ -4,8 +4,10 @@ import com.google.common.base.Charsets;
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnel;
 import com.google.common.hash.PrimitiveSink;
+import com.google.common.io.Files;
 
 import java.io.*;
+import java.util.List;
 
 /**
  * PopularityStore - a store of banned passwords
@@ -61,5 +63,17 @@ public class PopularityStore
         InputStream buffer = new BufferedInputStream(fis);
         BloomFilter<String> bloomFilter = BloomFilter.readFrom(buffer, passwordFunnel);
         return new PopularityStore(bloomFilter);
+    }
+
+    public static PopularityStore loadFromTextFile(String path) throws IOException {
+        File file = new File(path);
+        List<String> lines = Files.readLines(file, Charsets.UTF_8);
+        PopularityStore popularityStore = new PopularityStore();
+
+        for (String s : lines) {
+            popularityStore.add(s);
+        }
+
+       return new PopularityStore();
     }
 }

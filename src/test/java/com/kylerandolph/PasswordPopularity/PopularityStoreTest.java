@@ -1,5 +1,8 @@
 package com.kylerandolph.PasswordPopularity;
 
+import com.google.common.io.ByteSink;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -7,7 +10,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Unit test for simple PopularityStore.
@@ -49,7 +54,6 @@ public class PopularityStoreTest
         assertFalse(p.mightContain("donkey"));
     }
 
-    @org.junit.Test
     public void testAdditions()
     {
         PopularityStore p = fakePopularityStore();
@@ -77,7 +81,6 @@ public class PopularityStoreTest
         fizile = temporaryFolder.newFile("whateva");
     }
 
-    @org.junit.Test
     public void testSerialization() throws IOException
     {
         PopularityStore p_to_store = fakePopularityStore();
@@ -89,6 +92,19 @@ public class PopularityStoreTest
         assertTrue(p.mightContain("ninja"));
         assertTrue(p.mightContain("pizza"));
         assertFalse(p.mightContain("donkey"));
+    }
+
+    public void testLoadFromTextFile() throws IOException {
+        InputStream in = this.getClass().getClassLoader().getResourceAsStream("myspace.txt");
+        byte[] data = ByteStreams.toByteArray(in);
+        fizile = temporaryFolder.newFile("myspace.txt");
+        String path = fizile.getAbsolutePath();
+        ByteSink out = Files.asByteSink(fizile);
+        out.write(data);
+
+        PopularityStore popularityStore = PopularityStore.loadFromTextFile(path);
+
+        assertTrue(popularityStore.mightContain("nirvana1"));
     }
 
 }
